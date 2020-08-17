@@ -19,7 +19,7 @@ class ImageUtil {
         @JvmStatic
         @Throws(Exception::class)
         fun base64ToBitmap(base64String: String): String {
-            return ""
+            return base64String
         }
     }
 }
