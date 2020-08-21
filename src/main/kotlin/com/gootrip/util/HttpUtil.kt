@@ -1,10 +1,7 @@
 package com.gootrip.util
 
 import com.google.gson.Gson
-import java.io.BufferedReader
-import java.io.InputStreamReader
-import java.io.OutputStreamWriter
-import java.io.PrintWriter
+import java.io.*
 import java.net.HttpURLConnection
 import java.net.URL
 
@@ -32,12 +29,27 @@ class HttpUtil {
          * @param url 请求地址，URL包括参数，http://HOST/XX?XX=XX&XXX=XXX
          * @param headers 请求头，包括cookie
          * @param charset 编码方式
-         * @return html源代码
+         * @return 流
          */
         @JvmStatic
         @Throws(Exception::class)
-        fun sendGetStream(url: String, headers: Map<String, String>? = null, charset: String = "utf-8"): InputStreamReader {
+        fun sendGetStream(url: String, headers: Map<String, String>? = null, charset: String = "utf-8"): InputStream? {
             return createHttpStream(url, "GET", null, headers, charset)
+        }
+        /**
+         * 使用Get方式获取数据
+         *
+         * @param url 请求地址，URL包括参数，http://HOST/XX?XX=XX&XXX=XXX
+         * @param headers 请求头，包括cookie
+         * @param charset 编码方式
+         * @return 字节集
+         */
+        @JvmStatic
+        @Throws(Exception::class)
+        fun sendGetByteArray(url: String, headers: Map<String, String>? = null, charset: String = "utf-8"): ByteArray? {
+            val s = createHttpStream(url, "GET", null, headers, charset)
+            return s?.readAllBytes()
+
         }
 
         /**
@@ -67,7 +79,8 @@ class HttpUtil {
          */
         private fun createHttp(url: String, method: String, bodyParams: Map<String, String>?, headers: Map<String, String>?, charset: String = "utf-8"): String {
             val bufferResult = StringBuffer()
-            val inputStreamReader = createHttpStream(url, method, bodyParams, headers, charset)
+            val inputStream = createHttpStream(url, method, bodyParams, headers, charset)
+            val inputStreamReader = InputStreamReader(inputStream, charset)
             val inStream = BufferedReader(inputStreamReader)
             inStream.use { r ->
                 while (true) {
@@ -94,9 +107,9 @@ class HttpUtil {
          * @param bodyParams 请求数据
          * @param headers 请求头，包括cookie
          * @param charset 编码方式
-         * @return html源代码
+         * @return 流
          */
-        private fun createHttpStream(url: String, method: String, bodyParams: Map<String, String>?, headers: Map<String, String>?, charset: String = "utf-8"): InputStreamReader {
+        private fun createHttpStream(url: String, method: String, bodyParams: Map<String, String>?, headers: Map<String, String>?, charset: String = "utf-8"): InputStream? {
             val conn = URL(url).openConnection() as HttpURLConnection
             conn.requestMethod = method.toUpperCase()
             conn.doOutput = true
@@ -113,7 +126,7 @@ class HttpUtil {
             //flush 输出流缓冲
             out.flush()
             out.close()
-            return InputStreamReader(conn.inputStream, charset)
+            return conn.inputStream
 
 
         }
