@@ -26,6 +26,19 @@ class HttpUtil {
         fun sendGet(url: String, headers: Map<String, String>? = null, charset: String = "utf-8"): String {
             return createHttp(url, "GET", null, headers, charset)
         }
+        /**
+         * 使用Get方式获取数据
+         *
+         * @param url 请求地址，URL包括参数，http://HOST/XX?XX=XX&XXX=XXX
+         * @param headers 请求头，包括cookie
+         * @param charset 编码方式
+         * @return html源代码
+         */
+        @JvmStatic
+        @Throws(Exception::class)
+        fun sendGetStream(url: String, headers: Map<String, String>? = null, charset: String = "utf-8"): InputStreamReader {
+            return createHttpStream(url, "GET", null, headers, charset)
+        }
 
         /**
          * 使用Post方式获取数据
@@ -54,25 +67,8 @@ class HttpUtil {
          */
         private fun createHttp(url: String, method: String, bodyParams: Map<String, String>?, headers: Map<String, String>?, charset: String = "utf-8"): String {
             val bufferResult = StringBuffer()
-            val conn = URL(url).openConnection() as HttpURLConnection
-            conn.requestMethod = method.toUpperCase()
-            conn.doOutput = true
-            conn.doInput = true
-            conn.useCaches = false
-            conn.connectTimeout = 30000
-            conn.readTimeout = 30000
-            val mmap = headers.orEmpty().toMutableMap()
-            setRequestProperty(mmap, conn)
-
-            // 发送POST请求必须设置如下两行
-
-
-            val out = PrintWriter(OutputStreamWriter(conn.outputStream, charset))
-            //发送请求
-            out.print(setBodyParams(bodyParams.orEmpty(), mmap))
-            //flush 输出流缓冲
-            out.flush()
-            val inStream = BufferedReader(InputStreamReader(conn.inputStream, charset))
+            val inputStreamReader = createHttpStream(url, method, bodyParams, headers, charset)
+            val inStream = BufferedReader(inputStreamReader)
             inStream.use { r ->
                 while (true) {
                     val temp = r.readLine()
@@ -85,10 +81,40 @@ class HttpUtil {
                 }
 
             }
-            out.close()
             inStream.close()
             println(bufferResult.toString())
             return bufferResult.toString()
+
+        }
+        /**
+         * 使用HttpClient方式获取数据
+         *
+         * @param url 请求地址，URL包括参数，http://HOST/XX?XX=XX&XXX=XXX
+         * @param method 请求方法
+         * @param bodyParams 请求数据
+         * @param headers 请求头，包括cookie
+         * @param charset 编码方式
+         * @return html源代码
+         */
+        private fun createHttpStream(url: String, method: String, bodyParams: Map<String, String>?, headers: Map<String, String>?, charset: String = "utf-8"): InputStreamReader {
+            val conn = URL(url).openConnection() as HttpURLConnection
+            conn.requestMethod = method.toUpperCase()
+            conn.doOutput = true
+            conn.doInput = true
+            conn.useCaches = false
+            conn.connectTimeout = 30000
+            conn.readTimeout = 30000
+            val mmap = headers.orEmpty().toMutableMap()
+            setRequestProperty(mmap, conn)
+
+            val out = PrintWriter(OutputStreamWriter(conn.outputStream, charset))
+            //发送请求
+            out.print(setBodyParams(bodyParams.orEmpty(), mmap))
+            //flush 输出流缓冲
+            out.flush()
+            out.close()
+            return InputStreamReader(conn.inputStream, charset)
+
 
         }
 

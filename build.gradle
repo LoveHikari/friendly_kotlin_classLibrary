@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'com.gootrip'
-version '1.0-SNAPSHOT'
+version '1.0.1'
 
 repositories {
     maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
@@ -24,6 +24,8 @@ dependencies {
 
     implementation("org.apache.commons:commons-dbcp2:2.7.0")
     implementation("commons-dbutils:commons-dbutils:1.7")
+
+    testImplementation("junit:junit:4.13")
 }
 
 uploadArchives {
