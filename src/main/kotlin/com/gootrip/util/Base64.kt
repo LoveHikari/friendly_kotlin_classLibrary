@@ -7,7 +7,7 @@ import java.io.ByteArrayOutputStream
  *
  * @author 子不语
  * @date 2020-06-09
- * @see https://gist.github.com/hrules6872/e2d4d02a1e8d3c6328ae5aeabc430b96
+ * @see 'https://gist.github.com/hrules6872/e2d4d02a1e8d3c6328ae5aeabc430b96'
  */
 
 fun String.encodeBase64ToString(): String = String(this.toByteArray().encodeBase64())
