@@ -32,7 +32,7 @@ uploadArchives {
     repositories {
         mavenDeployer {
             repository(url: "https://www.myget.org/F/ifish/maven") {
-                authentication(userName: "ifish", password: "64617668")
+                authentication(userName: "***", password: "*****")
             }
             pom.project {
                 name 'com.gootrip.util'
